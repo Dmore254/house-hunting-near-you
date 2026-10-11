@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>NestFind — Find Your Next Home</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+/* ============ RESET & TOKENS ============ */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#f5f6fb;
+  --surface:#ffffff;
+  --text:#0f172a;
+  --muted:#64748b;
+  --line:#e6e8f0;
+  --brand:#4f46e5;
+  --brand-dark:#4338ca;
+  --brand-soft:#eef0ff;
+  --ok:#10b981;
+  --danger:#ef4444;
+  --radius:20px;
+  --shadow-sm:0 1px 2px rgba(15,23,42,.06),0 1px 3px rgba(15,23,42,.04);
+  --shadow:0 10px 30px -12px rgba(15,23,42,.18);
+  --shadow-lg:0 30px 60px -20px rgba(15,23,42,.35);
+}
+html{scroll-behavior:smooth}
+body{
+  font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+  background:var(--bg);color:var(--text);line-height:1.5;
+  -webkit-font-smoothing:antialiased;
+}
+img{display:block;max-width:100%}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer;border:0;background:none}
+a{color:inherit;text-decoration:none}
+.wrap{width:min(1180px,100% - 2.5rem);margin-inline:auto}
+
+/* ============ BUTTONS ============ */
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:.5rem;
+  padding:.72rem 1.15rem;border-radius:13px;font-weight:600;font-size:.88rem;
+  transition:transform .18s, background .18s, box-shadow .18s, opacity .18s;
+  white-space:nowrap;
+}
+.btn:active{transform:scale(.98)}
+.btn-primary{background:var(--brand);color:#fff;box-shadow:0 8px 20px -8px rgba(79,70,229,.75)}
+.btn-primary:hover{background:var(--brand-dark);transform:translateY(-1px)}
+.btn-ghost{background:var(--brand-soft);color:var(--brand)}
+.btn-ghost:hover{background:#e2e5ff}
+.btn-block{width:100%}
+.btn:disabled{opacity:.65;cursor:default;transform:none;box-shadow:none}
+
+/* ============ NAV ============ */
+.nav{
+  position:sticky;top:0;z-index:60;
+  background:rgba(255,255,255,.85);backdrop-filter:blur(14px);
+  border-bottom:1px solid var(--line);
+}
+.nav-in{display:flex;align-items:center;gap:1rem;height:68px}
+.brand{display:flex;align-items:center;gap:.6rem;font-weight:800;font-size:1.12rem;letter-spacing:-.03em}
+.brand-mark{
+  width:34px;height:34px;border-radius:11px;display:grid;place-items:center;color:#fff;
+  background:linear-gradient(135deg,var(--brand),#8b5cf6);
+  box-shadow:0 8px 18px -8px var(--brand);
+}
+.brand-mark svg{width:19px;height:19px}
+.nav-links{display:flex;gap:.15rem;margin-left:auto}
+.nav-links a{padding:.5rem .85rem;border-radius:10px;font-size:.88rem;font-weight:500;color:var(--muted);transition:.2s}
+.nav-links a:hover{background:var(--brand-soft);color:var(--brand)}
+.nav .btn{padding:.6rem 1rem;font-size:.84rem}
+
+/* ============ HERO ============ */
+.hero{position:relative;padding:4.25rem 0 3.25rem;text-align:center;overflow:hidden}
+.hero::before{
+  content:"";position:absolute;inset:-40% 0 auto 0;height:640px;z-index:-1;
+  background:
+    radial-gradient(560px 300px at 18% 12%,rgba(79,70,229,.16),transparent 62%),
+    radial-gradient(560px 300px at 82% 2%,rgba(14,165,233,.15),transparent 62%);
+}
+.pill{
+  display:inline-flex;align-items:center;gap:.5rem;padding:.4rem .85rem;border-radius:999px;
+  background:#fff;border:1px solid var(--line);font-size:.78rem;font-weight:600;
+  color:var(--muted);box-shadow:var(--shadow-sm);
+}
+.pill .dot{width:7px;height:7px;border-radius:50%;background:var(--ok);box-shadow:0 0 0 4px rgba(16,185,129,.16)}
+h1{
+  font-size:clamp(2rem,5.2vw,3.4rem);line-height:1.07;letter-spacing:-.038em;
+  font-weight:800;margin:1.15rem 0 .85rem;
+}
+h1 em{
+  font-style:normal;
+  background:linear-gradient(115deg,var(--brand),#0ea5e9);
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+}
+.sub{color:var(--muted);font-size:1.02rem;max-width:560px;margin:0 auto}
+
+/* ---- Search card ---- */
+.search{
+  display:grid;grid-template-columns:1.5fr 1fr 1fr auto;gap:.4rem;
+  background:#fff;padding:.55rem;border-radius:22px;border:1px solid var(--line);
+  box-shadow:var(--shadow);margin-top:2.1rem;text-align:left;
+}
+.field{display:flex;flex-direction:column;gap:.1rem;padding:.5rem .85rem;border-radius:15px;transition:.2s}
+.field:focus-within{background:var(--brand-soft)}
+.field label{font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--muted)}
+.field input,.field select{border:0;outline:0;background:transparent;font-size:.9rem;font-weight:500;width:100%}
+.search .btn{border-radius:15px;padding-inline:1.4rem}
+
+/* ---- Steps strip ---- */
+.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-top:2.4rem;text-align:left}
+.step{
+  background:#fff;border:1px solid var(--line);border-radius:16px;padding:1rem;
+  display:flex;gap:.8rem;box-shadow:var(--shadow-sm);transition:.25s;
+}
+.step:hover{transform:translateY(-3px);box-shadow:var(--shadow)}
+.step .num{
+  width:32px;height:32px;border-radius:10px;flex:none;display:grid;place-items:center;
+  background:var(--brand-soft);color:var(--brand);font-weight:800;font-size:.82rem;
+}
+.step h4{font-size:.9rem;letter-spacing:-.01em}
+.step p{font-size:.78rem;color:var(--muted);line-height:1.45}
+
+/* ============ LISTINGS ============ */
+.section{padding:2.75rem 0 4rem}
+.sec-head{display:flex;align-items:flex-end;justify-content:space-between;gap:1rem;flex-wrap:wrap}
+.sec-head h2{font-size:1.45rem;letter-spacing:-.025em}
+.sec-head p{color:var(--muted);font-size:.86rem;margin-top:.15rem}
+.sort{
+  padding:.6rem .9rem;border-radius:12px;border:1px solid var(--line);background:#fff;
+  font-size:.84rem;font-weight:600;outline:0;cursor:pointer;
+}
+.sort:focus{border-color:var(--brand);box-shadow:0 0 0 4px rgba(79,70,229,.12)}
+
+.chips{display:flex;gap:.5rem;overflow-x:auto;padding:.9rem 0 .5rem;scrollbar-width:none}
+.chips::-webkit-scrollbar{display:none}
+.chip{
+  padding:.5rem .95rem;border-radius:999px;border:1px solid var(--line);background:#fff;
+  font-size:.83rem;font-weight:600;color:var(--muted);white-space:nowrap;transition:.2s;
+}
+.chip:hover{border-color:#c8cce0;color:var(--text)}
+.chip.active{background:var(--text);border-color:var(--text);color:#fff}
+
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(288px,1fr));gap:1.25rem;margin-top:1.1rem}
+
+/* ---- Card ---- */
+.card{
+  background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);
+  overflow:hidden;display:flex;flex-direction:column;box-shadow:var(--shadow-sm);
+  transition:transform .28s cubic-bezier(.2,.8,.3,1), box-shadow .28s, border-color .28s;
+  animation:rise .45s both;
+}
+@keyframes rise{from{opacity:0;transform:translateY(12px)}}
+.card:hover{transform:translateY(-5px);box-shadow:var(--shadow);border-color:#daddee}
+.media{position:relative;aspect-ratio:16/11;overflow:hidden;background:linear-gradient(135deg,#e0e7ff,#eef2f7)}
+.media .ph{position:absolute;inset:0;margin:auto;width:54px;height:54px;color:#c3c9dd}
+.media img{position:relative;width:100%;height:100%;object-fit:cover;transition:transform .6s cubic-bezier(.2,.8,.3,1)}
+.card:hover .media img{transform:scale(1.06)}
+.badge{position:absolute;top:.7rem;left:.7rem;display:flex;gap:.35rem;flex-wrap:wrap}
+.tag{
+  padding:.3rem .58rem;border-radius:8px;font-size:.68rem;font-weight:700;
+  background:rgba(255,255,255,.94);backdrop-filter:blur(6px);color:var(--text);
+  box-shadow:var(--shadow-sm);letter-spacing:.01em;
+}
+.tag.hot{background:var(--brand);color:#fff}
+.tag.paid{background:var(--ok);color:#fff}
+.save{
+  position:absolute;top:.62rem;right:.62rem;width:34px;height:34px;border-radius:50%;
+  display:grid;place-items:center;color:var(--muted);background:rgba(255,255,255,.94);
+  backdrop-filter:blur(6px);transition:.2s;box-shadow:var(--shadow-sm);
+}
+.save svg{width:16px;height:16px;transition:.2s}
+.save:hover{color:var(--danger);transform:scale(1.1)}
+.save.on{color:var(--danger)}
+.save.on svg{fill:currentColor}
+
+.card .body{padding:1rem 1.05rem 1.05rem;display:flex;flex-direction:column;gap:.5rem;flex:1}
+.price{font-size:1.22rem;font-weight:800;letter-spacing:-.025em}
+.price small{font-size:.76rem;font-weight:500;color:var(--muted)}
+.card .title{font-size:.98rem;font-weight:700;letter-spacing:-.012em;line-height:1.3}
+.loc{display:flex;align-items:center;gap:.32rem;color:var(--muted);font-size:.81rem}
+.loc svg{width:14px;height:14px;flex:none;color:var(--brand)}
+.specs{display:flex;gap:.85rem;flex-wrap:wrap;padding-top:.1rem}
+.spec{display:flex;align-items:center;gap:.32rem;font-size:.79rem;color:var(--muted);font-weight:500}
+.spec svg{width:15px;height:15px;color:var(--brand)}
+.card .foot{
+  margin-top:auto;padding-top:.85rem;border-top:1px dashed var(--line);
+  display:flex;align-items:center;gap:.6rem;
+}
+.fee{font-size:.7rem;color:var(--muted);line-height:1.3}
+.fee b{color:var(--text);font-size:.78rem}
+.foot .btn{margin-left:auto;padding:.6rem .95rem;font-size:.82rem}
+
+.empty{text-align:center;padding:3.5rem 1rem;color:var(--muted)}
+.empty svg{width:52px;height:52px;color:#c3c9dd;margin:0 auto .75rem}
+.empty h3{color:var(--text);font-size:1.05rem;margin-bottom:.25rem}
+
+/* ============ FOOTER ============ */
+footer{border-top:1px solid var(--line);background:#fff;padding:2rem 0;margin-top:1rem}
+.foot-in{display:flex;justify-content:space-between;align-items:center;gap:1rem;flex-wrap:wrap;font-size:.82rem;color:var(--muted)}
+.foot-links{display:flex;gap:1.1rem}
+.foot-links a:hover{color:var(--brand)}
+
+/* ============ MODAL ============ */
+.overlay{
+  position:fixed;inset:0;z-index:100;padding:1rem;display:grid;place-items:center;
+  background:rgba(15,23,42,.55);backdrop-filter:blur(5px);
+  opacity:0;pointer-events:none;transition:opacity .25s;
+}
+.overlay.open{opacity:1;pointer-events:auto}
+.modal{
+  width:min(520px,100%);max-height:92vh;overflow-y:auto;background:#fff;
+  border-radius:26px;box-shadow:var(--shadow-lg);
+  transform:translateY(16px) scale(.975);transition:transform .3s cubic-bezier(.2,.8,.3,1);
+}
+.overlay.open .modal{transform:none}
+.modal::-webkit-scrollbar{width:6px}
+.modal::-webkit-scrollbar-thumb{background:#d6d9e8;border-radius:99px}
+
+.steps-bar{display:flex;gap:.4rem;padding:1.1rem 1.5rem 0}
+.step-dot{flex:1;height:5px;border-radius:99px;background:var(--line);transition:.35s}
+.step-dot.active{background:var(--brand)}
+.step-dot.done{background:var(--ok)}
+
+.modal-head{padding:1.1rem 1.5rem 0;display:flex;align-items:flex-start;gap:1rem}
+.eyebrow{font-size:.7rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--brand)}
+.modal-head h3{font-size:1.22rem;letter-spacing:-.025em;margin-top:.15rem}
+.icon-btn{
+  margin-left:auto;width:34px;height:34px;border-radius:50%;display:grid;place-items:center;
+  background:#f1f2f8;color:var(--muted);transition:.2s;flex:none;
+}
+.icon-btn:hover{background:#e6e8f0;color:var(--text)}
+.icon-btn svg{width:16px;height:16px}
+
+.panel{display:none}
+.panel.active{display:block}
+
+/* ---- Forms ---- */
+.form{padding:1.25rem 1.5rem 1.5rem;display:grid;gap:.9rem}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:.9rem}
+.inp{display:block}
+.lbl{display:block;font-size:.76rem;font-weight:600;color:var(--muted);margin-bottom:.35rem}
+.input{
+  width:100%;padding:.75rem .9rem;border:1px solid var(--line);border-radius:13px;
+  background:#fbfbfe;outline:0;font-size:.89rem;transition:.2s;
+}
+.input::placeholder{color:#a9b0c4}
+.input:focus{border-color:var(--brand);background:#fff;box-shadow:0 0 0 4px rgba(79,70,229,.12)}
+.input.err{border-color:var(--danger);background:#fef2f2}
+textarea.input{resize:vertical;min-height:76px}
+select.input{cursor:pointer}
+.err-msg{display:none;font-size:.71rem;color:var(--danger);margin-top:.28rem;font-weight:500}
+.err-msg.show{display:block}
+
+/* ---- Summary ---- */
+.summary{background:var(--brand-soft);border-radius:16px;padding:1rem;display:grid;gap:.5rem;font-size:.84rem}
+.summary .li{display:flex;justify-content:space-between;gap:1rem;color:var(--muted)}
+.summary .li b{color:var(--text);font-weight:600;text-align:right;max-width:62%}
+.summary .li.total{
+  border-top:1px solid rgba(79,70,229,.22);padding-top:.55rem;margin-top:.1rem;
+  color:var(--text);font-weight:700;font-size:.98rem;
+}
+.secure{font-size:.73rem;color:var(--muted);text-align:center;line-height:1.5}
+.secure b{color:var(--text)}
+
+.mini-prop{
+  display:flex;gap:.75rem;align-items:center;background:#f8f9fe;border:1px solid var(--line);
+  border-radius:14px;padding:.6rem;font-size:.84rem;
+}
+.mini-prop img{width:58px;height:48px;border-radius:10px;object-fit:cover;background:#e6e8f0}
+.mini-prop b{display:block;font-size:.84rem;line-height:1.3}
+.mini-prop small{color:var(--muted);font-size:.74rem}
+
+/* ---- Success ---- */
+.success{padding:2rem 1.5rem 1.6rem;text-align:center}
+.success .tick{
+  width:64px;height:64px;border-radius:50%;margin:0 auto 1rem;display:grid;place-items:center;
+  background:rgba(16,185,129,.12);color:var(--ok);animation:pop .45s cubic-bezier(.2,1.5,.5,1);
+}
+@keyframes pop{from{transform:scale(.4);opacity:0}}
+.success .tick svg{width:30px;height:30px}
+.success h3{font-size:1.2rem;letter-spacing:-.02em;margin-bottom:.4rem}
+.success p{font-size:.86rem;color:var(--muted);max-width:340px;margin:0 auto 1rem}
+.ref{
+  display:inline-block;background:#f1f2f8;border-radius:10px;padding:.5rem .9rem;
+  font-size:.8rem;color:var(--muted);margin-bottom:1.25rem;
+}
+.ref b{color:var(--text);letter-spacing:.05em}
+
+/* ---- Spinner ---- */
+.spinner{
+  width:15px;height:15px;border-radius:50%;flex:none;
+  border:2px solid rgba(255,255,255,.35);border-top-color:#fff;
+  animation:spin .7s linear infinite;
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ---- Toast ---- */
+.toast{
+  position:fixed;left:50%;bottom:1.5rem;z-index:200;
+  transform:translate(-50%,180%);display:flex;align-items:center;gap:.6rem;
+  background:var(--text);color:#fff;padding:.8rem 1.15rem;border-radius:14px;
+  font-size:.86rem;font-weight:500;box-shadow:0 20px 45px -14px rgba(15,23,42,.65);
+  transition:transform .38s cubic-bezier(.2,.9,.3,1);max-width:calc(100% - 2rem);
+}
+.toast.show{transform:translate(-50%,0)}
+.toast svg{width:17px;height:17px;color:#34d399;flex:none}
+
+/* ============ RESPONSIVE ============ */
+@media(max-width:960px){
+  .search{grid-template-columns:1fr 1fr}
+  .search .btn{grid-column:1/-1}
+  .steps{grid-template-columns:1fr}
+}
+@media(max-width:820px){
+  .nav-links{display:none}
+  .nav .btn{margin-left:auto}
+}
+@media(max-width:600px){
+  .wrap{width:calc(100% - 2rem)}
+  .hero{padding:3rem 0 2.25rem}
+  .search{grid-template-columns:1fr;padding:.45rem;border-radius:20px}
+  .field{padding:.5rem .75rem}
+  .search .btn{padding-block:.85rem}
+  .grid{grid-template-columns:1fr;gap:1.1rem}
+  .row{grid-template-columns:1fr}
+  .form{padding:1rem 1.15rem 1.35rem}
+  .modal-head{padding:1rem 1.15rem 0}
+  .steps-bar{padding:1rem 1.15rem 0}
+  .modal{border-radius:22px}
+  .sec-head{align-items:flex-start}
+}
+@media(prefers-reduced-motion:reduce){
+  *{animation-duration:.01ms !important;transition-duration:.01ms !important}
+}
+</style>
+</head>
+<body>
+
+<!-- ================= NAV ================= -->
+<header class="nav">
+  <div class="wrap nav-in">
+    <a class="brand" href="#">
+      <span class="brand-mark">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5 12 3l9 7.5"/><path d="M5.5 9.5V21h13V9.5"/><path d="M10 21v-6h4v6"/></svg>
+      </span>
+      NestFind
+    </a>
+    <nav class="nav-links">
+      <a href="#listings">Listings</a>
+      <a href="#how">How it works</a>
+      <a href="#listings">Saved</a>
+    </nav>
+    <button class="btn btn-primary" type="button">List your property</button>
+  </div>
+</header>
+
+<!-- ================= HERO ================= -->
+<section class="hero">
+  <div class="wrap">
+    <span class="pill"><span class="dot"></span> 1,240+ verified homes available today</span>
+    <h1>Find a home that <em>fits your life</em></h1>
+    <p class="sub">Browse apartments, duplexes, bungalows, studios, villas and more. Pay a small application fee, then apply — it takes under 2 minutes.</p>
+
+    <!-- Search -->
+    <div class="search">
+      <div class="field">
+        <label for="q">Location</label>
+        <input id="q" type="text" placeholder="City, area or neighbourhood" autocomplete="off">
+      </div>
+      <div class="field">
+        <label for="typeSelect">Property type</label>
+        <select id="typeSelect">
+          <option>All</option>
+          <option>Apartment</option>
+          <option>Duplex</option>
+          <option>Bungalow</option>
+          <option>Studio</option>
+          <option>Villa</option>
+          <option>Penthouse</option>
+          <option>Self-Contained</option>
+          <option>Terrace</option>
+          <option>Townhouse</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="maxPrice">Max budget</label>
+        <select id="maxPrice">
+          <option value="0">Any price</option>
+          <option value="1000">Up to $1,000/mo</option>
+          <option value="2000">Up to $2,000/mo</option>
+          <option value="3500">Up to $3,500/mo</option>
+          <option value="6000">Up to $6,000/mo</option>
+        </select>
+      </div>
+      <button class="btn btn-primary" id="searchBtn" type="button">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.2-3.2"/></svg>
+        Search
+      </button>
+    </div>
+
+    <!-- How it works -->
+    <div class="steps" id="how">
+      <div class="step">
+        <span class="num">1</span>
+        <div><h4>Browse &amp; shortlist</h4><p>Filter by type, budget and location to find homes you love.</p></div>
+      </div>
+      <div class="step">
+        <span class="num">2</span>
+        <div><h4>Pay the application fee</h4><p>A one-time $25 fee secures your application slot per home.</p></div>
+      </div>
+      <div class="step">
+        <span class="num">3</span>
+        <div><h4>Apply &amp; get approved</h4><p>Submit your details — landlords respond within 24–48 hours.</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= LISTINGS ================= -->
+<main class="section" id="listings">
+  <div class="wrap">
+    <div class="sec-head">
+      <div>
+        <h2>Available homes</h2>
+        <p id="count">Loading homes…</p>
+      </div>
+      <select class="sort" id="sort">
+        <option value="rec">Recommended</option>
+        <option value="low">Price: Low to High</option>
+        <option value="high">Price: High to Low</option>
+        <option value="new">Newest first</option>
+      </select>
+    </div>
+
+    <div class="chips" id="chips">
+      <button class="chip active" data-type="All">All homes</button>
+      <button class="chip" data-type="Apartment">Apartment</button>
+      <button class="chip" data-type="Duplex">Duplex</button>
+      <button class="chip" data-type="Bungalow">Bungalow</button>
+      <button class="chip" data-type="Studio">Studio</button>
+      <button class="chip" data-type="Villa">Villa</button>
+      <button class="chip" data-type="Penthouse">Penthouse</button>
+      <button class="chip" data-type="Self-Contained">Self-Contained</button>
+      <button class="chip" data-type="Terrace">Terrace</button>
+      <button class="chip" data-type="Townhouse">Townhouse</button>
+    </div>
+
+    <div class="grid" id="grid"></div>
+
+    <div class="empty" id="empty" hidden>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5 12 3l9 7.5"/><path d="M5.5 9.5V21h13V9.5"/><path d="M9.5 21v-6h5v6"/></svg>
+      <h3>No homes match your filters</h3>
+      <p>T
